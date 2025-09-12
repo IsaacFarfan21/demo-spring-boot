@@ -30,9 +30,13 @@ public class ProductoService {
                 .filter(p -> p.getId()
                         ==id)
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(()-> new ProductoNoEncontradoException(id));
     }
     public boolean eliminar(long id){
-        return BD.removeIf(p->p.getId()==id);
+        boolean productoEliminado =  BD.removeIf(p->p.getId()==id);
+        if(!productoEliminado){
+            throw new ProductoNoEncontradoException(id);
+        }
+        return productoEliminado;
     }
 }
