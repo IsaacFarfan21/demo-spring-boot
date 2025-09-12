@@ -2,26 +2,46 @@ package com.utec.demo.spring_boot.controllers;
 
 import com.utec.demo.spring_boot.producto.Producto;
 import com.utec.demo.spring_boot.producto.ProductoDTO;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
 @RequestMapping("/api/productos")
 public class ProductoController {
+    private static final List<Producto> BD = new ArrayList<>();
+    private static final AtomicLong NEXT_ID = new AtomicLong(1L);
     @GetMapping
     public List<Producto> listaProductos(){
-        return List.of(
-                new Producto(1L,"producto A",20.0),
-                new Producto(2L,"producto B",100.0),
-                new Producto(3L,"producto C",30.0)
-        );
+        return BD;
     }
     @PostMapping
     public Producto crearProducto(@RequestBody ProductoDTO productoDTO) {
-        System.out.println("Producto recibido: " +
-                 productoDTO.getNombre()+ "Precio: "+productoDTO.getPrecio());
-        return new Producto(4L,productoDTO.getNombre(), productoDTO.getPrecio());
+        Producto nuevoProducto = new Producto(NEXT_ID.getAndIncrement(), productoDTO.getNombre(),
+                productoDTO.getPrecio()) ;
+        BD.add(nuevoProducto);
+        return nuevoProducto;
     }
-
+    @GetMapping("/{id}")
+    public Producto obtenerPorducto(@PathVariable long id)
+    {
+        return BD.stream()
+                .filter(p -> p.getId()
+                ==id)
+                .findFirst()
+                .orElse(null);
+    }
+    @DeleteMapping ("/{id}")
+    public ResponseEntity<Void> eliminarProducto(@PathVariable long id){
+        boolean notaEliminada= BD.removeIf(p->p.getId()==id);
+        if(notaEliminada=true){
+            return ResponseEntity.noContent().build();
+        }
+        else{
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
