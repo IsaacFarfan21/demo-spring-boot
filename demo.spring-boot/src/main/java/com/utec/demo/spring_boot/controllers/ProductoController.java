@@ -1,9 +1,8 @@
 package com.utec.demo.spring_boot.controllers;
 
 import com.utec.demo.spring_boot.producto.Producto;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.utec.demo.spring_boot.producto.ProductoDTO;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,4 +17,11 @@ public class ProductoController {
                 new Producto(3L,"producto C",30.0)
         );
     }
+    @PostMapping
+    public Producto crearProducto(@RequestBody ProductoDTO productoDTO) {
+        System.out.println("Producto recibido: " +
+                 productoDTO.getNombre()+ "Precio: "+productoDTO.getPrecio());
+        return new Producto(4L,productoDTO.getNombre(), productoDTO.getPrecio());
+    }
+
 }
